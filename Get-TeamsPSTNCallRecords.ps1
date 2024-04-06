@@ -148,7 +148,7 @@ $directRoutingCalls = Get-Calls -type "getDirectRoutingCalls"
 Write-Host "    - Retrieving Calling Plan call records"
 $callingPlanCalls = Get-Calls -type "getPstnCalls"
 
-$callingPlanCalls | Format-Table
+$callingPlanCalls | select calleeNumber, callerNumber, duration | Format-Table
 
 # Save to file
 Write-Host "`r`n- Saving PSTN call records to $SaveFormat files"
