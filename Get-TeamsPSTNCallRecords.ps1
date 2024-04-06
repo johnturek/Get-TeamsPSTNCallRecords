@@ -5,16 +5,10 @@
  
 .DESCRIPTION
 
-    Author: Lee Ford
+    Author: JT Turek
 
     This tool allows you retireve PSTN call records for Calling Plan and Direct Routing users and save to a file. You can request how many days far back (from now) you wish to retrieve
 
-.LINK
-
-    Blog: https://www.lee-ford.co.uk
-    Twitter: http://www.twitter.com/lee_ford
-    LinkedIn: https://www.linkedin.com/in/lee-ford/
- 
 .EXAMPLE 
 
     .\Get-TeamsPSTNCallRecords.ps1 -SavePath C:\Temp -Days 10 -SaveFormat JSON
@@ -31,10 +25,9 @@ param (
     [Parameter(mandatory = $true)][ValidateSet("JSON", "CSV")]$SaveFormat
 )
 
-# Client (application) ID, tenant (directory) ID and secret
-$clientId = "<application id goees here>"
-$tenantId = "<directory id goes here>"
-$clientSecret = '<secret goes here>'
+$clientId = [System.Environment]::GetEnvironmentVariable('clientId', 'User')
+$tenantId = [System.Environment]::GetEnvironmentVariable('tenantId', 'User')
+$clientSecret = [System.Environment]::GetEnvironmentVariable('clientSecret', 'User')
 
 function Get-Calls {
     param (
@@ -107,13 +100,6 @@ function Get-Calls {
 
 }
 
-# Start
-Write-Host "`n----------------------------------------------------------------------------------------------
-            `n Get-TeamsPSTNCallRecords.ps1 - Lee Ford
-            `n https://github.com/leeford/Get-TeamsPSTNCallRecords - https://www.lee-ford.co.uk
-            `n----------------------------------------------------------------------------------------------
-            `n Disclaimer: This script is provided ‘as-is’ without any warranty or support. 
-            `n Use of this script is at your own risk." -ForegroundColor Yellow
 
 # Check Days is a postive number
 if ($Days -lt 0) {
@@ -140,6 +126,7 @@ if (-not (Test-Path -Path $SavePath)) {
 $uri = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
 $body = @{
     client_id     = $clientId
+   
     scope         = "https://graph.microsoft.com/.default"
     client_secret = $clientSecret
     grant_type    = "client_credentials"
@@ -160,6 +147,8 @@ $directRoutingCalls = Get-Calls -type "getDirectRoutingCalls"
 # Get Calling Plan calls
 Write-Host "    - Retrieving Calling Plan call records"
 $callingPlanCalls = Get-Calls -type "getPstnCalls"
+
+$callingPlanCalls | Format-Table
 
 # Save to file
 Write-Host "`r`n- Saving PSTN call records to $SaveFormat files"
